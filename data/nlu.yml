@@ -1,0 +1,19 @@
+version: "3.0"
+nlu:
+  - intent: ask_internet_down
+    examples: |
+      - интернет не работает
+      - перестал работать интернет
+      - нет связи
+
+  - intent: ask_payment_issue
+    examples: |
+      - не прошла оплата
+      - платеж не дошёл
+      - деньги списались, но услуга не активна
+
+  - intent: thank_you
+    examples: |
+      - спасибо
+      - благодарю
+      - хватит
