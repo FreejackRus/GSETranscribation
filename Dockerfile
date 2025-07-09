@@ -12,7 +12,8 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Устанавливаем псевдонимы для python и pip
-RUN ln -s /usr/bin/python3 /usr/bin/python && \
+RUN rm -f /usr/bin/python /usr/bin/pip && \
+    ln -s /usr/bin/python3 /usr/bin/python && \
     ln -s /usr/bin/pip3 /usr/bin/pip
 
 # Устанавливаем рабочую директорию
@@ -20,7 +21,7 @@ WORKDIR /app
 
 # Копируем файл с зависимостями и устанавливаем их
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt --ignore-installed
 RUN pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
 
 # Копируем остальной код приложения
