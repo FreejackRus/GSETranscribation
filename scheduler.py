@@ -17,8 +17,7 @@ def processing_job():
 
 
 # Настройка расписания
-schedule.every().day.at("12:38").do(processing_job)  # Основная ночная обработка
-schedule.every(6).hours.do(processing_job)  # Дополнительные проверки
+schedule.every().day.at("04:00").do(processing_job)  # Основная ночная обработка
 
 if __name__ == "__main__":
     logger.info("Audio processing service started")

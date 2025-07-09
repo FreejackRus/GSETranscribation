@@ -1,31 +1,59 @@
-# Используем официальный образ NVIDIA CUDA в качестве базового
-FROM nvidia/cuda:11.8.0-runtime-ubuntu22.04
+# Stage 1: Builder
+FROM python:3.12-slim-bookworm as builder
 
-# Устанавливаем переменные окружения, чтобы избежать интерактивных запросов при установке пакетов
-ENV DEBIAN_FRONTEND=noninteractive
-
-# Устанавливаем системные зависимости, включая Python и ffmpeg
-RUN apt-get update && apt-get install -y \
-    python3.9 \
-    python3-pip \
-    ffmpeg \
-    && rm -rf /var/lib/apt/lists/*
-
-# Устанавливаем псевдонимы для python и pip
-RUN rm -f /usr/bin/python /usr/bin/pip && \
-    ln -s /usr/bin/python3 /usr/bin/python && \
-    ln -s /usr/bin/pip3 /usr/bin/pip
-
-# Устанавливаем рабочую директорию
 WORKDIR /app
 
-# Копируем файл с зависимостями и устанавливаем их
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt --ignore-installed
-RUN pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+# Установка системных зависимостей
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ffmpeg \
+    build-essential \
+    cmake \
+    pkg-config \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
 
-# Копируем остальной код приложения
+# Установка Rust
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+ENV PATH="/root/.cargo/bin:${PATH}"
+
+# Копируем requirements.txt отдельно для кэширования
+COPY requirements.txt .
+
+RUN pip install --no-cache-dir --user \
+    torch==2.3.0+cpu \
+    torchaudio==2.3.0+cpu \
+    --index-url https://download.pytorch.org/whl/cpu \
+    && pip install --no-cache-dir --user -r requirements.txt
+
+# Установка зависимостей
+RUN pip install --no-cache-dir --user -r requirements.txt
+
+# Копируем исходный код
 COPY . .
 
-# Указываем команду для запуска приложения
+# Stage 2: Final image
+FROM python:3.12-slim-bookworm
+
+WORKDIR /app
+
+# Runtime зависимости
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ffmpeg \
+    libgomp1 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Создаем пользователя
+RUN adduser --disabled-login --gecos '' appuser
+USER appuser
+WORKDIR /home/appuser/app
+
+# Копируем только необходимое из builder
+COPY --from=builder --chown=appuser:appuser /root/.local/lib/python3.12/site-packages /home/appuser/.local/lib/python3.12/site-packages
+COPY --from=builder --chown=appuser:appuser /app /home/appuser/app
+
+# Настройка окружения
+ENV PYTHONPATH=/home/appuser/.local/lib/python3.12/site-packages:$PYTHONPATH \
+    PATH=/home/appuser/.local/bin:$PATH
+
+# Команда запуска (убедитесь, что scheduler.py в корне проекта)
 CMD ["python", "scheduler.py"]

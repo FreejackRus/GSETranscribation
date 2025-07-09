@@ -1,3 +1,4 @@
+import os
 import traceback
 from datetime import datetime
 
@@ -94,6 +95,14 @@ def process_audio_file(audio_path, metadata=None):
         logger.error(f"Error processing {audio_path}: {e}")
         traceback.print_exc()
         return False
+
+    finally:
+        try:
+            if audio_path and os.path.exists(audio_path):
+                os.remove(audio_path)
+                logger.info(f"Deleted audio file: {audio_path}")
+        except Exception as e:
+            logger.error(f"Error deleting audio file {audio_path}: {e}")
 
 
 if __name__ == "__main__":
