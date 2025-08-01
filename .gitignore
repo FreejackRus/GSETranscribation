@@ -205,3 +205,26 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+# Environment variables
+.env
+
+# Processed files log
+processed_files.log
+
+# Downloaded audio files
+downloaded_audio/
+
+# Model cache
+.cache/
+models/
+
+# IDE files
+.idea/
+.vscode/
+*.pyc
+__pycache__/
+
+# Logs
+logs/
+*.log

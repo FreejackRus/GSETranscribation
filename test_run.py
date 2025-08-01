@@ -9,5 +9,5 @@ def test_processing():
     processor.process_new_files()
     print("=== ТЕСТ ЗАВЕРШЕН ===")
 
-if __name__ == "__ma    in__":
+if __name__ == "__main__":
     test_processing()

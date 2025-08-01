@@ -6,3 +6,4 @@ faster-whisper>=0.10.0
 pydub==0.25.1
 python-dotenv==1.0.0
 tokenizers==0.21.2
+torch>=2.0.0

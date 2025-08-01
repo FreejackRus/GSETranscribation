@@ -22,7 +22,7 @@ def init_models():
 
 
 def generate_ticket_content(claim_data):
-    """Генерация содержимого заявки (вынесено в отдельную функцию)"""
+    """Генерация содержимого заявки"""
     return (
         "Заявка создана через голосового помощника\n"
         "#голосовой_помощник\n"
@@ -30,7 +30,9 @@ def generate_ticket_content(claim_data):
         f"Вагон: {claim_data.get('wagon_number', 'N/A')}\n"
         f"Серийный номер: {claim_data.get('wagon_sn', 'N/A')}\n"
         f"Проблемы: {', '.join(claim_data.get('problems', []))}\n"
-        f"Заявитель: {claim_data.get('executor_name', 'аноним')}"
+        f"Заявитель: {claim_data.get('executor_name', 'аноним')}\n"
+        f"Номер звонящего: {claim_data.get('callerid', 'N/A')}\n"
+        f"Дата звонка: {claim_data.get('call_date', 'N/A')}"
     )
 
 
@@ -53,23 +55,8 @@ def process_audio_file(audio_path, metadata=None):
             claim_data.update({
                 'callerid': metadata.get('callerid', 'N/A'),
                 'origtime': metadata.get('origtime', 0),
-                # Конвертируем timestamp в читаемую дату, если нужно
                 'call_date': datetime.fromtimestamp(metadata.get('origtime', 0)).strftime('%Y-%m-%d %H:%M:%S')
             })
-
-        # Обновляем функцию генерации содержимого заявки
-        def generate_ticket_content(claim_data):
-            return (
-                "Заявка создана через голосового помощника\n"
-                "#голосовой_помощник\n"
-                f"Поезд: {claim_data.get('train_number', 'N/A')}\n"
-                f"Вагон: {claim_data.get('wagon_number', 'N/A')}\n"
-                f"Серийный номер: {claim_data.get('wagon_sn', 'N/A')}\n"
-                f"Проблемы: {', '.join(claim_data.get('problems', []))}\n"
-                f"Заявитель: {claim_data.get('executor_name', 'аноним')}\n"
-                f"Номер звонящего: {claim_data.get('callerid', 'N/A')}\n"
-                f"Дата звонка: {claim_data.get('call_date', 'N/A')}"
-            )
 
         # Создание заявки в GLPI
         with connect(GLPI_URL, GLPI_APP_TOKEN, GLPI_USER_TOKEN) as glpi:
