@@ -9,7 +9,7 @@ SFTP_HOST = os.getenv("SFTP_HOST", "192.168.33.3")
 SFTP_USER = os.getenv("SFTP_USER", "vmbrowse")
 SFTP_PASSWORD = os.getenv("SFTP_PASSWORD")
 SFTP_PORT = int(os.getenv("SFTP_PORT", "22"))
-SFTP_REMOTE_PATH = "."  # Текущая директория на сервере
+SFTP_REMOTE_PATH = "."  
 LOCAL_DOWNLOAD_PATH = "downloaded_audio"
 PROCESSED_FILES_LOG = "processed_files.log"
 
